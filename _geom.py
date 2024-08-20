@@ -130,7 +130,7 @@ class MultiPartShape(Shape):
         for part, is_hole in self.parts:
             part_points = part.to_points(num_points)
             if is_hole:
-                part_points = [Point(p.x, p.y) for p in part_points]
+                part_points = [Point(p.x, p.y) for p in part_points]  # or Point(-p.x, -p.y) [I'm not sure!]
             points.extend(part_points)
         return points
 
@@ -144,6 +144,5 @@ class MultiPartShape(Shape):
 
 C1 = Circle(50, 50, 40, material=1)  # A circle
 S1 = Square(20, 20, 30, material=2)  # A square
-R1 = Rectangle(20, 20, 30, 10, material=2)  # A Rectangle
 # We might want to consider holes as material with code -1 or 0 [I'm not sure!]
 C2 = Circle(50, 50, 20, material=-1)  # A circle
