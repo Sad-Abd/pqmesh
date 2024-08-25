@@ -3,6 +3,7 @@ GEOMETRY DEFINITION TEMPLATE!
 """
 
 from abc import ABC, abstractmethod
+from typing import List
 import numpy as np
 
 
@@ -10,11 +11,12 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-    
-    def to_numpy_array(points):
-        x_coords = [point.x for point in points]
-        y_coords = [point.y for point in points]
-        return np.array([x_coords, y_coords]).T
+
+
+def to_numpy_array(points: List[Point]):
+    x_coords = [point.x for point in points]
+    y_coords = [point.y for point in points]
+    return np.array([x_coords, y_coords]).T
 
 
 # Abstract Class
