@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from _geom import *
+from geometry import *
 
 
 class Cell:

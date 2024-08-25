@@ -2,7 +2,6 @@
 GEOMETRY DEFINITION TEMPLATE!
 """
 
-import math
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -11,7 +10,7 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
+    
     def to_numpy_array(points):
         x_coords = [point.x for point in points]
         y_coords = [point.y for point in points]
@@ -43,21 +42,20 @@ class Circle(Shape):
     def to_points(self, num_points):
         points = []
         for i in range(num_points):
-            angle = 2 * math.pi * i / num_points
-            x = self.center_x + self.radius * math.cos(angle)
-            y = self.center_y + self.radius * math.sin(angle)
+            angle = 2 * np.pi * i / num_points
+            x = self.center_x + self.radius * np.cos(angle)
+            y = self.center_y + self.radius * np.sin(angle)
             points.append(Point(x, y))
         return points
 
     def inside_point(self, point):
-        distance = math.sqrt((point.x - self.center_x) ** 2 + (point.y - self.center_y) ** 2)
+        distance = np.sqrt(
+            (point.x - self.center_x) ** 2 + (point.y - self.center_y) ** 2
+        )
         return distance <= self.radius
 
 
 class Square(Shape):
-    """
-    I think we can replace it with a Rectangle builder for a more general case.
-    """
 
     def __init__(self, center_x, center_y, side_length, material):
         super().__init__(material)
@@ -74,19 +72,33 @@ class Square(Shape):
                 y = self.center_y - self.side_length / 2
             elif t < 0.5:
                 x = self.center_x + self.side_length / 2
-                y = self.center_y - self.side_length / 2 + self.side_length * (t - 0.25) * 4
+                y = (
+                    self.center_y
+                    - self.side_length / 2
+                    + self.side_length * (t - 0.25) * 4
+                )
             elif t < 0.75:
-                x = self.center_x + self.side_length / 2 - self.side_length * (t - 0.5) * 4
+                x = (
+                    self.center_x
+                    + self.side_length / 2
+                    - self.side_length * (t - 0.5) * 4
+                )
                 y = self.center_y + self.side_length / 2
             else:
                 x = self.center_x - self.side_length / 2
-                y = self.center_y + self.side_length / 2 - self.side_length * (t - 0.75) * 4
+                y = (
+                    self.center_y
+                    + self.side_length / 2
+                    - self.side_length * (t - 0.75) * 4
+                )
             points.append(Point(x, y))
         return points
 
     def inside_point(self, point):
-        return (abs(point.x - self.center_x) <= self.side_length / 2 and
-                abs(point.y - self.center_y) <= self.side_length / 2)
+        return (
+            abs(point.x - self.center_x) <= self.side_length / 2
+            and abs(point.y - self.center_y) <= self.side_length / 2
+        )
 
 
 class Rectangle(Shape):
@@ -103,18 +115,40 @@ class Rectangle(Shape):
         for i in range(num_points_per_side):
             t = i / num_points_per_side
             # Bottom side
-            points.append(Point(self.center_x - self.width / 2 + self.width * t, self.center_y - self.height / 2))
+            points.append(
+                Point(
+                    self.center_x - self.width / 2 + self.width * t,
+                    self.center_y - self.height / 2,
+                )
+            )
             # Right side
-            points.append(Point(self.center_x + self.width / 2, self.center_y - self.height / 2 + self.height * t))
+            points.append(
+                Point(
+                    self.center_x + self.width / 2,
+                    self.center_y - self.height / 2 + self.height * t,
+                )
+            )
             # Top side
-            points.append(Point(self.center_x + self.width / 2 - self.width * t, self.center_y + self.height / 2))
+            points.append(
+                Point(
+                    self.center_x + self.width / 2 - self.width * t,
+                    self.center_y + self.height / 2,
+                )
+            )
             # Left side
-            points.append(Point(self.center_x - self.width / 2, self.center_y + self.height / 2 - self.height * t))
+            points.append(
+                Point(
+                    self.center_x - self.width / 2,
+                    self.center_y + self.height / 2 - self.height * t,
+                )
+            )
         return points
 
     def inside_point(self, point):
-        return (abs(point.x - self.center_x) <= self.width / 2 and
-                abs(point.y - self.center_y) <= self.height / 2)
+        return (
+            abs(point.x - self.center_x) <= self.width / 2
+            and abs(point.y - self.center_y) <= self.height / 2
+        )
 
 
 class MultiPartShape(Shape):
@@ -130,7 +164,9 @@ class MultiPartShape(Shape):
         for part, is_hole in self.parts:
             part_points = part.to_points(num_points)
             if is_hole:
-                part_points = [Point(p.x, p.y) for p in part_points]  # or Point(-p.x, -p.y) [I'm not sure!]
+                part_points = [
+                    Point(p.x, p.y) for p in part_points
+                ]  # or Point(-p.x, -p.y) [I'm not sure!]
             points.extend(part_points)
         return points
 
