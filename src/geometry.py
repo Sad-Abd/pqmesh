@@ -32,6 +32,10 @@ class Shape(ABC):
     def inside_point(self, point):
         pass
 
+    def get_boundary_points(self, num_points=100):
+        boundary_points = []
+        return boundary_points
+
 
 # Concrete Classes
 class Circle(Shape):
@@ -56,6 +60,9 @@ class Circle(Shape):
         )
         return distance <= self.radius
 
+    def get_boundary_points(self, num_points=100):
+        return super().get_boundary_points(num_points)
+
 
 class Square(Shape):
 
@@ -75,32 +82,35 @@ class Square(Shape):
             elif t < 0.5:
                 x = self.center_x + self.side_length / 2
                 y = (
-                    self.center_y
-                    - self.side_length / 2
-                    + self.side_length * (t - 0.25) * 4
+                        self.center_y
+                        - self.side_length / 2
+                        + self.side_length * (t - 0.25) * 4
                 )
             elif t < 0.75:
                 x = (
-                    self.center_x
-                    + self.side_length / 2
-                    - self.side_length * (t - 0.5) * 4
+                        self.center_x
+                        + self.side_length / 2
+                        - self.side_length * (t - 0.5) * 4
                 )
                 y = self.center_y + self.side_length / 2
             else:
                 x = self.center_x - self.side_length / 2
                 y = (
-                    self.center_y
-                    + self.side_length / 2
-                    - self.side_length * (t - 0.75) * 4
+                        self.center_y
+                        + self.side_length / 2
+                        - self.side_length * (t - 0.75) * 4
                 )
             points.append(Point(x, y))
         return points
 
     def inside_point(self, point):
         return (
-            abs(point.x - self.center_x) <= self.side_length / 2
-            and abs(point.y - self.center_y) <= self.side_length / 2
+                abs(point.x - self.center_x) <= self.side_length / 2
+                and abs(point.y - self.center_y) <= self.side_length / 2
         )
+
+    def get_boundary_points(self, num_points=100):
+        return self.to_points(num_points)
 
 
 class Rectangle(Shape):
@@ -114,43 +124,32 @@ class Rectangle(Shape):
     def to_points(self, num_points):
         points = []
         num_points_per_side = num_points // 4
+
+        half_width = self.width / 2
+        half_height = self.height / 2
+
         for i in range(num_points_per_side):
             t = i / num_points_per_side
+
             # Bottom side
-            points.append(
-                Point(
-                    self.center_x - self.width / 2 + self.width * t,
-                    self.center_y - self.height / 2,
-                )
-            )
+            points.append(Point(self.center_x - half_width + self.width * t, self.center_y - half_height))
             # Right side
-            points.append(
-                Point(
-                    self.center_x + self.width / 2,
-                    self.center_y - self.height / 2 + self.height * t,
-                )
-            )
+            points.append(Point(self.center_x + half_width, self.center_y - half_height + self.height * t))
             # Top side
-            points.append(
-                Point(
-                    self.center_x + self.width / 2 - self.width * t,
-                    self.center_y + self.height / 2,
-                )
-            )
+            points.append(Point(self.center_x + half_width - self.width * t, self.center_y + half_height))
             # Left side
-            points.append(
-                Point(
-                    self.center_x - self.width / 2,
-                    self.center_y + self.height / 2 - self.height * t,
-                )
-            )
+            points.append(Point(self.center_x - half_width, self.center_y + half_height - self.height * t))
+
         return points
 
     def inside_point(self, point):
         return (
-            abs(point.x - self.center_x) <= self.width / 2
-            and abs(point.y - self.center_y) <= self.height / 2
+                abs(point.x - self.center_x) <= self.width / 2
+                and abs(point.y - self.center_y) <= self.height / 2
         )
+
+    def get_boundary_points(self, num_points=100):
+        return self.to_points(num_points)
 
 
 class MultiPartShape(Shape):
@@ -168,7 +167,7 @@ class MultiPartShape(Shape):
             if is_hole:
                 part_points = [
                     Point(p.x, p.y) for p in part_points
-                ]  # or Point(-p.x, -p.y) [I'm not sure!]
+                ]
             points.extend(part_points)
         return points
 
@@ -179,8 +178,16 @@ class MultiPartShape(Shape):
                 inside_count += 1 if not is_hole else -1
         return inside_count > 0
 
+    def get_boundary_points(self, num_points=100):
+        boundary_points = []
+        for part, is_hole in self.parts:
+            part_boundary_points = part.get_boundary_points(num_points)
+            if is_hole:
+                part_boundary_points.reverse()
+            boundary_points.extend(part_boundary_points)
+        return boundary_points
+
 
 C1 = Circle(50, 50, 40, material=1)  # A circle
 S1 = Square(20, 20, 30, material=2)  # A square
-# We might want to consider holes as material with code -1 or 0 [I'm not sure!]
 C2 = Circle(50, 50, 20, material=-1)  # A circle
