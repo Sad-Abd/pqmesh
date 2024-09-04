@@ -32,10 +32,6 @@ class Shape(ABC):
     def inside_point(self, point):
         pass
 
-    def get_boundary_points(self, num_points=100):
-        boundary_points = []
-        return boundary_points
-
 
 # Concrete Classes
 class Circle(Shape):
@@ -59,9 +55,6 @@ class Circle(Shape):
             (point.x - self.center_x) ** 2 + (point.y - self.center_y) ** 2
         )
         return distance <= self.radius
-
-    def get_boundary_points(self, num_points=100):
-        return super().get_boundary_points(num_points)
 
 
 class Square(Shape):
@@ -109,9 +102,6 @@ class Square(Shape):
                 and abs(point.y - self.center_y) <= self.side_length / 2
         )
 
-    def get_boundary_points(self, num_points=100):
-        return self.to_points(num_points)
-
 
 class Rectangle(Shape):
     def __init__(self, center_x, center_y, width, height, material):
@@ -148,9 +138,6 @@ class Rectangle(Shape):
                 and abs(point.y - self.center_y) <= self.height / 2
         )
 
-    def get_boundary_points(self, num_points=100):
-        return self.to_points(num_points)
-
 
 class MultiPartShape(Shape):
     def __init__(self, material):
@@ -177,17 +164,3 @@ class MultiPartShape(Shape):
             if part.inside_point(point):
                 inside_count += 1 if not is_hole else -1
         return inside_count > 0
-
-    def get_boundary_points(self, num_points=100):
-        boundary_points = []
-        for part, is_hole in self.parts:
-            part_boundary_points = part.get_boundary_points(num_points)
-            if is_hole:
-                part_boundary_points.reverse()
-            boundary_points.extend(part_boundary_points)
-        return boundary_points
-
-
-C1 = Circle(50, 50, 40, material=1)  # A circle
-S1 = Square(20, 20, 30, material=2)  # A square
-C2 = Circle(50, 50, 20, material=-1)  # A circle
