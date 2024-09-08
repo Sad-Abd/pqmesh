@@ -63,7 +63,7 @@ class Circle(Shape):
 
     def get_boundary_points(self):
         points = []
-        for angle in range(0, 360, 360 // self.num_points):
+        for angle in np.linspace(0, 360, self.num_points):
             rad = radians(angle)  # Convert to radians
             x = self.center[0] + self.radius * cos(rad)
             y = self.center[1] + self.radius * sin(rad)
