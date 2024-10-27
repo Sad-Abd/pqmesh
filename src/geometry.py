@@ -138,10 +138,6 @@ class MultiPartShape(Shape):
         points = []
         for part, is_hole in self.parts:
             part_points = part.to_points(num_points)
-            if is_hole:
-                part_points = [
-                    Point(p[0], p[1]) for p in part_points
-                ]
             points.extend(part_points)
         return points
 
@@ -157,3 +153,6 @@ class MultiPartShape(Shape):
         for part, is_hole in self.parts:
             points.extend(part.get_boundary_points())
         return points
+
+    def get_holes(self):
+        return [part for part, is_hole in self.parts if is_hole]
