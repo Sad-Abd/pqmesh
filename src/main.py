@@ -1,29 +1,35 @@
 import geometry as gm
 import matplotlib.pyplot as plt
-import numpy as np
-import plot as p
+from quadtree import process_boundary_points, DomainBox
 
 if __name__ == "__main__":
-    # Create geometrical shapes
-    circle = gm.Circle(50, 50, 20, 1, 20)
-    square = gm.Square(50, 50, 10, 1, 4)
-    rectangle = gm.Rectangle(50, 50, 30, 10, 2, 4)
+    # Create shapes
+    circle = gm.Circle(50, 50, 20, material=1, num_points=20)
+    square = gm.Square(50, 50, 10, material=2, num_points=4)
+    rectangle = gm.Rectangle(50, 50, 30, 10, material=3, num_points=4)
 
-    # Create multipart shape
-    multi_shape = gm.MultiPartShape(material=3)
-    multi_shape.add_part(square)
-    multi_shape.add_part(circle, is_hole=True)
+    shapes = [circle, square, rectangle]
+    
+    # Get boundary points with material information
+    boundary_points = process_boundary_points(shapes)
 
+    # Create and partition domain
+    domain = DomainBox(100, 100, shapes)  # Pass shapes to DomainBox
+    domain.partition(boundary_points, threshold=1)  # Adjust threshold as needed
 
-    shapes = [
-        ("Circle", circle),
-        ("Square", square),
-        ("Rectangle", rectangle),
-        ("multiple shapes", multi_shape),
-    ]
+    # Generate mesh
+    nodes, elements = domain.generate_mesh()
 
-    for shape_name, shape in shapes:
-        boundary_points = shape.get_boundary_points() if shape_name != "Multipart Shape" else shape.get_boundary_points()
+    # Print mesh information
+    print("\nNodes:")
+    for node in nodes:
+        print(f"Node {node.id}: ({node.x}, {node.y})")
 
-        print(f"\nPlotting {shape_name}:")
-        p.plot_shape(boundary_points, 100, 1)
+    print("\nElements:")
+    for element in elements:
+        print(f"Element {element.id}:")
+        print(f"  Nodes (CCW): {element.nodes}")
+        print(f"  Materials: {element.materials}")
+
+    # Plot mesh with material information
+    domain.plot()
